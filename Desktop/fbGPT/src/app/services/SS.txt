@@ -1,0 +1,99 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SharedVarService {
+  // Chat-related observables
+  chatResponse = new BehaviorSubject<{ question: string; response: string } | null>(null);
+  chatResponse$ = this.chatResponse.asObservable();
+
+  private showStartContent = new BehaviorSubject<boolean>(true);
+  showStartContent$ = this.showStartContent.asObservable();
+
+  private conversationHistory = new BehaviorSubject<{ role: string; content: string }[]>([]);
+  conversationHistory$ = this.conversationHistory.asObservable();
+
+  private chatHistory = new BehaviorSubject<any[]>([]);
+  chatHistory$ = this.chatHistory.asObservable();
+
+  private isFirstQuestion = new BehaviorSubject<boolean>(true);
+  isFirstQuestion$ = this.isFirstQuestion.asObservable();
+
+  // New chat trigger
+  private newChatTrigger = new BehaviorSubject<boolean>(false);
+  newChatTrigger$ = this.newChatTrigger.asObservable();
+
+  // Show metrics panel
+  private showMetricsSubject = new BehaviorSubject<boolean>(false);
+  showMetrics$ = this.showMetricsSubject.asObservable();
+
+  // Token metrics
+  private firstTokenTimeSubject = new BehaviorSubject<number>(0);
+  firstTokenTime$ = this.firstTokenTimeSubject.asObservable();
+
+  private tokensPerSecondSubject = new BehaviorSubject<number>(0);
+  tokensPerSecond$ = this.tokensPerSecondSubject.asObservable();
+
+  private firstToLastTokenSubject = new BehaviorSubject<number>(0);
+  firstToLastToken$ = this.firstToLastTokenSubject.asObservable();
+
+  constructor() {
+    // Load stored conversations when the service initializes
+    const savedConversations = JSON.parse(localStorage.getItem('allConversations') || '[]');
+    this.chatHistory.next(savedConversations);
+  }
+
+  // 🔹 Chat Updates
+  updateConversationHistory(history: { role: string; content: string }[]) {
+    this.conversationHistory.next([...history]);
+  }
+
+  updateChatHistory(history: any[]) {
+    this.chatHistory.next([...history]);
+  }
+
+  getChatHistoryValue() {
+    return this.chatHistory.getValue();
+  }
+
+  updateShowStartContent(state: boolean) {
+    this.showStartContent.next(state);
+  }
+
+  updateIsFirstQuestion(state: boolean) {
+    this.isFirstQuestion.next(state);
+  }
+
+  // 🔥 Show/hide metrics
+  updateShowMetrics(show: boolean) {
+    
+    this.showMetricsSubject.next(show);
+  }
+
+  // 🔥 Update token metrics
+  updateFirstTokenTime(time: number) {
+    const formattedDuration = parseFloat(time.toFixed(2));
+    this.firstTokenTimeSubject.next(formattedDuration);
+ 
+  }
+
+  updateTokensPerSecond(rate: number) {
+    const formattedDuration = parseFloat(rate.toFixed(2));
+    this.tokensPerSecondSubject.next(formattedDuration);
+ 
+  }
+
+  updateFirstToLastToken(duration: number) {
+    const formattedDuration = parseFloat(duration.toFixed(2));;
+    this.firstToLastTokenSubject.next(formattedDuration);
+
+  }
+
+  // 🔹 Trigger New Chat
+  triggerNewChat() {
+  
+    this.newChatTrigger.next(true);
+  }
+}

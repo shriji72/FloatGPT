@@ -1,0 +1,86 @@
+<!-- Sidebar Navigation -->
+<div class="sideNav w-[215px] h-screen bg-[#f0f4f9] p-4 transition-all duration-300 ease-in-out relative">
+  
+  <!-- Top bar action icon (hamburger menu) -->
+  <div class="topBarAction m-4 cursor-pointer">
+    <i>
+      <svg class="h-6 w-6 text-stone-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </i>
+  </div>
+
+  <!-- Button for starting a new chat -->
+  <div class="sideNavBtn mt-12 mb-8 cursor-pointer">
+    <button (click)="newChat()" class="h-10 w-36 rounded-full outline-none border-none bg-[#dde3ea] flex items-center justify-evenly transition duration-300 cursor-pointer">
+      <i>
+        <svg class="h-6 w-6 text-stone-900" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </i>
+      <span class="cursor-pointer">New Chat</span>
+    </button>
+  </div>
+
+  <!-- Chat History Section -->
+  <div class="chatHistory max-h-[250px] overflow-y-scroll">
+    <h5 class="text-[0.87rem] font-medium leading-[1.25rem] my-4 mx-1">Recent</h5>
+    <div class="ul list-none m-0">
+      <!-- Loop through chat history and display each past chat -->
+      <div class="li h-[23px] rounded-full flex items-center px-2 cursor-pointer text-sm inline-block w-[90%] whitespace-nowrap overflow-hidden text-ellipsis hover:bg-[#dde3ea]" *ngFor="let chat of chatHistory$ | async" (click)="displayChatHistory(chat.question, chat.response)">
+        <i>
+          <svg class="h-6 w-6 text-stone-900" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4" />
+            <line x1="12" y1="11" x2="12" y2="11.01" />
+            <line x1="8" y1="11" x2="8" y2="11.01" />
+            <line x1="16" y1="11" x2="16" y2="11.01" />
+          </svg>
+        </i>
+        <span>{{ chat.question }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar action buttons (Help, Activity, Settings) -->
+  <div class="actionList absolute bottom-4 flex flex-col h-[16%] gap-[1.9px]">
+    
+    <!-- Help Button -->
+    <button class="w-full flex hover:bg-[#dde3ea]">
+      <i>
+        <svg class="h-5 w-5 text-stone-900" viewBox="0 0 23 23" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      </i>
+      <span class="px-3 text-sm w-full">Help</span>
+    </button>
+
+    <!-- Activity Button -->
+    <button class="w-full flex hover:bg-[#dde3ea]">
+      <i>
+        <svg class="h-5 w-5 text-stone-900" viewBox="0 0 23 23" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <path d="M9 4.55a8 8 0 0 1 6 14.9m0 -4.45v5h5" />
+          <path d="M11 19.95a8 8 0 0 1 -5.3 -12.8" stroke-dasharray=".001 4.13" />
+        </svg>
+      </i>
+      <span class="px-3 text-sm w-full">Activity</span>
+    </button>
+
+    <!-- Settings Button -->
+    <button class="w-full flex hover:bg-[#dde3ea]">
+      <i>
+        <svg class="h-5 w-5 text-stone-900" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0"/>
+        </svg>
+      </i>
+      <span class="px-3 text-sm w-full">Settings</span>
+    </button>
+  </div>
+</div>

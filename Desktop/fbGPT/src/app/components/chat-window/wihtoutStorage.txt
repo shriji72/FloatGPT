@@ -1,0 +1,160 @@
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core'; 
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; 
+import { SharedVarService } from '../../services/shared-var.service'; 
+import { ApiCallService } from '../../services/api-call.service'; 
+import { CommonModule } from '@angular/common'; 
+import { FormsModule } from '@angular/forms'; 
+import { take } from 'rxjs/operators'; 
+import { Observable } from 'rxjs'; 
+
+@Component({
+  selector: 'app-chat-window',
+  standalone: true,
+  templateUrl: './chat-window.component.html',
+  styleUrls: ['./chat-window.component.css'],
+  imports: [CommonModule, FormsModule]
+})
+export class ChatWindowComponent implements OnInit {
+  @ViewChild('chatContainer') chatContainer!: ElementRef;
+
+  userInput: string = '';  
+  chatResponse$: Observable<{ question: string; response: string } | null>;
+  showStartContent$: Observable<boolean>;  
+  conversationHistory$: Observable<any[]>;
+  isFirstQuestion$: Observable<boolean>;
+  isLoading: boolean = false;
+  currentConversationId: number | null = null;
+  private abortController: AbortController | null = null;
+
+  // Token tracking
+  firstTokenTimestamp: number = 0;
+  lastTokenTimestamp: number = 0;
+  totalTokens: number = 0;
+  startTime: number = 0;
+
+  // Metrics
+  timeToFirstToken: number = 0;
+  tokensPerSecond: number = 0;
+  firstToLastTokenTime: number = 0;
+
+  promptQuestions: string[] = [
+    "Write a thank you reply for a birthday wish?",
+    "How to become a full stack developer?",
+    "What is the best way to learn something new?",
+    "What is time dilation in the context of gravity?",
+  ];
+
+  private apiService = inject(ApiCallService);
+  private sharedVarService = inject(SharedVarService);
+  private sanitizer = inject(DomSanitizer);
+  showMetrics$: Observable<boolean>;
+
+  constructor() {
+    this.chatResponse$ = this.sharedVarService.chatResponse$;
+    this.showStartContent$ = this.sharedVarService.showStartContent$;
+    this.conversationHistory$ = this.sharedVarService.conversationHistory$;
+    this.isFirstQuestion$ = this.sharedVarService.isFirstQuestion$;
+    this.showMetrics$ = this.sharedVarService.showMetrics$
+    this.sharedVarService.updateFirstTokenTime(this.timeToFirstToken);
+    this.sharedVarService.updateTokensPerSecond(this.tokensPerSecond);
+    this.sharedVarService.updateFirstToLastToken(this.firstToLastTokenTime);
+  }
+
+  ngOnInit(): void {
+    this.sharedVarService.newChatTrigger$.subscribe(() => {
+      this.setMetrics();
+      this.currentConversationId = null; // Reset conversation ID to ensure a new conversation starts
+    });
+
+     // Detect when the user presses the browser back button
+     window.addEventListener('popstate', this.handlePopState);
+    
+     // Push initial state to prevent unwanted history jumps
+     history.pushState(null, '', location.href);
+  }
+  setMetrics() {
+    this.firstTokenTimestamp = 0;
+    this.lastTokenTimestamp = 0;
+    this.totalTokens = 0;
+    this.startTime = 0;
+    this.timeToFirstToken = 0;
+    this.tokensPerSecond = 0;
+    this.firstToLastTokenTime = 0;
+  }  
+
+  private handlePopState = () => {
+    this.sharedVarService.updateShowStartContent(true);
+    history.pushState(null, '', location.href); // Push state again to prevent leaving the app
+  };
+
+  sanitizeHtml(html: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  sendMessage() {
+    if (this.userInput.trim()) {
+      this.getRes(this.userInput);
+      this.userInput = "";
+    }
+  }
+
+  getRes(question: string) {
+    this.sharedVarService.updateShowStartContent(false);
+    this.isLoading = true;
+
+    if (!this.currentConversationId) {
+      this.currentConversationId = Math.floor(Math.random() * 1000);
+    }
+
+    this.conversationHistory$.pipe(take(1)).subscribe((history: any[]) => {
+      const newHistory = [...history, { role: 'user', content: `User: ${question}` }];
+      this.sharedVarService.updateConversationHistory(newHistory);
+
+      const controller = new AbortController();
+      this.abortController = controller;
+      this.firstTokenTimestamp = 0;
+      this.lastTokenTimestamp = 0;
+      this.totalTokens = 0;
+      this.startTime = performance.now(); // ✅ Start time recorded before API call
+      
+      this.apiService.getResponse(newHistory, controller.signal).subscribe(
+        (chunk: string) => {
+          // ✅ Capture First Token Time
+          if (!this.firstTokenTimestamp) {
+            this.firstTokenTimestamp = performance.now();
+            this.timeToFirstToken = (this.firstTokenTimestamp - this.startTime) / 1000;
+            
+            this.sharedVarService.updateFirstTokenTime(this.timeToFirstToken);
+          }
+      
+          this.totalTokens++; // ✅ Increment total tokens
+          this.lastTokenTimestamp = performance.now();
+      
+          // ✅ Compute First-to-Last Token Time
+          this.firstToLastTokenTime = (this.lastTokenTimestamp - this.firstTokenTimestamp) / 1000;
+          
+          this.sharedVarService.updateFirstToLastToken(this.firstToLastTokenTime);
+      
+          // ✅ Update UI on Each Token
+          const formattedResponse = { role: "assistant", content: chunk || "AI: No response received." };
+          const updatedHistory = [...newHistory, formattedResponse];
+      
+          this.sharedVarService.updateConversationHistory(updatedHistory);
+        },
+        (error: any) => {
+          console.error("❌ Error fetching AI response:", error);
+          this.isLoading = false;
+        },
+        () => {
+          // ✅ Compute Tokens Per Second After Completion
+          const totalTime = (performance.now() - this.startTime) / 1000;
+          this.tokensPerSecond = totalTime > 0 ? this.totalTokens / totalTime : 0;
+          
+          this.sharedVarService.updateTokensPerSecond(this.tokensPerSecond);
+          
+          this.isLoading = false;
+        }
+      );
+    });
+  }
+}

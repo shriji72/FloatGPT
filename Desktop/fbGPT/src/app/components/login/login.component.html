@@ -1,0 +1,84 @@
+<div class="flex justify-center items-center h-screen bg-gray-50">
+	<!-- Main Container -->
+	<div class="relative w-[768px] max-w-full min-h-[480px] bg-white rounded-lg shadow-xl overflow-hidden"
+		 [ngClass]="{'right-panel-active': isSignUpActive}">
+  
+	  <!-- Sign Up Form -->
+	  <div class="absolute top-0 h-full w-1/2 transition-all duration-500"
+		   [ngClass]="{'translate-x-full opacity-100 z-10': isSignUpActive, 'opacity-0 z-0': !isSignUpActive}">
+		<form class="bg-white flex flex-col items-center justify-center h-full px-12 text-center" (submit)="onSignUp($event)">
+		  <h1 class="font-bold text-2xl pb-8 bg-slate-500 bg-clip-text text-transparent">Create Account</h1>
+  
+		  <input type="text" placeholder="Name" [(ngModel)]="signupData.name" name="name" required
+				 class="bg-gray-100 border-none rounded-md p-3 my-2 w-full" />
+		  <input type="email" placeholder="Email" [(ngModel)]="signupData.email" name="email" required
+				 class="bg-gray-100 border-none rounded-md p-3 my-2 w-full" />
+		  <input type="password" placeholder="Password" [(ngModel)]="signupData.password" name="password" required
+				 class="bg-gray-100 border-none p-3 rounded-md my-2 w-full" />
+  
+		  <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-white px-12 py-3 rounded-full uppercase font-bold mt-4">
+			Sign Up
+		  </button>
+  
+		  <div class="h-[24px] pt-4">
+			<p *ngIf="signupMessage" [ngClass]="{'text-green-500': signupMessage.includes('successfully'), 'text-red-500': signupMessage.includes('required')}" class="text-sm">
+			  {{ signupMessage }}
+			</p>
+		  </div>
+		</form>
+	  </div>
+	  
+	    
+	  <!-- Sign In Form -->
+	  <div class="absolute top-0 h-full w-1/2 transition-all duration-500"
+		   [ngClass]="{'-translate-x-full opacity-0 z-0': isSignUpActive, 'opacity-100 z-10': !isSignUpActive}">
+		<form class="bg-white flex flex-col items-center justify-center h-full px-12 text-center" (submit)="onSignIn($event)">
+		  <h1 class="font-bold text-2xl pb-8 bg-slate-500 bg-clip-text text-transparent">Login</h1>
+  
+		  <input type="email" placeholder="Email" [(ngModel)]="signinData.email" name="email" required
+				 class="bg-gray-100 border-none rounded-md p-3 my-2 w-full" />
+		  <input type="password" placeholder="Password" [(ngModel)]="signinData.password" name="password" required
+				 class="bg-gray-100 border-none rounded-md p-3 my-2 w-full" />
+  
+		  <a href="#" class="text-gray-500 text-sm mt-2">Forgot Your Password?</a>
+  
+		  <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-white px-12 py-3 rounded-full uppercase font-bold mt-4">
+			Sign In
+		  </button>
+  
+		  <div class="h-[24px] pt-4">
+			<p *ngIf="signinMessage" [ngClass]="{'text-green-500': signinMessage.includes('logged in'), 'text-red-500': signinMessage.includes('Invalid') || signinMessage.includes('required')}" class="text-sm">
+			  {{ signinMessage }}
+			</p>
+		  </div>
+		</form>
+	  </div>
+  
+	  <!-- Overlay Section -->
+	  <div class="absolute top-0 left-1/2 h-full w-1/2 bg-clip-content bg-gradient-to-r from-blue-100 to-purple-100 text-transparent text-white transition-transform duration-500"
+		   [ngClass]="{'-translate-x-full': isSignUpActive}">
+		<div class="absolute flex flex-col items-center justify-center h-full w-full text-center p-10 transition-opacity duration-500"
+			 [ngClass]="{'opacity-100': !isSignUpActive, 'opacity-0 pointer-events-none': isSignUpActive}">
+		  <h1 class="text-2xl pb-3 font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+			Welcome Back!
+		  </h1>
+		  <p class="text-sm text-slate-400">To keep connected with us please login with your personal info</p>
+		  <button class="border bg-gray-300 border-white px-12 py-3 rounded-full uppercase font-bold mt-4 hover:bg-gray-400 hover:text-white"
+				  (click)="togglePanel()">Sign Up</button>
+		</div>
+  
+		<div class="absolute flex flex-col items-center justify-center h-full w-full text-center p-10 transition-opacity duration-500"
+			 [ngClass]="{'opacity-100': isSignUpActive, 'opacity-0 pointer-events-none': !isSignUpActive}">
+		  <h1 class="text-2xl pb-3 font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+			Hello!
+		  </h1>
+		  <p class="text-sm text-slate-400">Enter your details and start your journey with us</p>
+		  <button class="border bg-gray-300 border-white px-12 py-3 rounded-full uppercase font-bold mt-4 hover:bg-gray-400 hover:text-white"
+				  (click)="togglePanel()">Sign In</button>
+		</div>
+	  </div>
+	</div>
+	<button class="hover: ease-in-out " ></button>
+</div> 
+  <div>
+	

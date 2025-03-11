@@ -1,0 +1,86 @@
+getRes(question: string) {
+  this.sharedVarService.updateShowStartContent(false);
+  this.isLoading = true;
+
+  // If there's no active conversation, generate a new ID and update chat history
+  if (!this.currentConversationId) {
+    this.currentConversationId = Math.floor(Math.random() * 1000);
+    
+    // Add only the first question to chat history in SideNav
+    this.sharedVarService.chatHistory$.pipe(take(1)).subscribe((history: any[]) => {
+      const updatedHistory = [...history, { conversationId: this.currentConversationId, question }];
+      this.sharedVarService.updateChatHistory(updatedHistory);
+    });
+
+    this.sharedVarService.setActiveConversationId(this.currentConversationId);
+  }
+
+  this.conversationHistory$.pipe(take(1)).subscribe((history: any[]) => {
+    const newHistory = [...history, { role: 'user', content: `User: ${question}` }];
+    this.sharedVarService.updateConversationHistory(newHistory);
+
+    const controller = new AbortController();
+    this.abortController = controller;
+    this.firstTokenTimestamp = 0;
+    this.lastTokenTimestamp = 0;
+    this.totalTokens = 0;
+    this.startTime = performance.now();
+
+    this.apiService.getResponse(newHistory, controller.signal).subscribe(
+      (chunk: string) => {
+        if (!this.firstTokenTimestamp) {
+          this.firstTokenTimestamp = performance.now();
+          this.timeToFirstToken = (this.firstTokenTimestamp - this.startTime) / 1000;
+          this.sharedVarService.updateFirstTokenTime(this.timeToFirstToken);
+        }
+
+        this.totalTokens++;
+        this.lastTokenTimestamp = performance.now();
+        this.firstToLastTokenTime = (this.lastTokenTimestamp - this.firstTokenTimestamp) / 1000;
+        this.sharedVarService.updateFirstToLastToken(this.firstToLastTokenTime);
+
+        const formattedResponse = { role: "assistant", content: chunk || "AI: No response received." };
+        const updatedHistory = [...newHistory, formattedResponse];
+
+        this.sharedVarService.updateConversationHistory(updatedHistory);
+      },
+      (error: any) => {
+        console.error("❌ Error fetching AI response:", error);
+        this.isLoading = false;
+      },
+      () => {
+        const totalTime = (performance.now() - this.startTime) / 1000;
+        this.tokensPerSecond = totalTime > 0 ? this.totalTokens / totalTime : 0;
+        this.sharedVarService.updateTokensPerSecond(this.tokensPerSecond);
+        this.isLoading = false;
+      }
+    );
+  });
+}
+
+
+
+
+
+
+
+Got it! Here's the plan for your Angular 19 chatbot project:
+
+Store the Full Conversation History
+
+Save the entire conversation (questions & responses) in local storage.
+Each conversation will have a unique conversationId.
+The Nav Component will have access to this history.
+Display Only the First Question in the 'Recent' Section
+
+When a new conversation starts, only the first question should appear in the SideNav 'Recent' section.
+Additional questions from the same conversation should not appear separately.
+How New Conversations Are Handled
+
+A new conversation starts only when the user clicks "New Chat."
+At that moment, a new conversationId is created, and the first question gets stored under 'Recent'.
+Fetching & Displaying Conversations
+
+The full conversation history should be accessible in local storage.
+The SideNav will only display the first question of each conversation under 'Recent'.
+When the user clicks a conversation in 'Recent', it should load the full conversation in the ChatWindow.

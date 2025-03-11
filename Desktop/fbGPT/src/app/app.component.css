@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+/* General Reset */
+*{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box; 
+    font-family: "Outfit", sans-serif;
+}
+
+/* Body styling */
+/* body {
+    background: #fff;
+    height: 100%;
+    font-family: "Outfit"; 
+    display: flex;
+
+}  */
+
+i {
+    font-size: 16px;
+    color: black;
+}
+
+.app-layout {
+    display: flex;
+    height: 100vh;
+  }
+  
+  app-side-nav {
+    width: 18%; /* Adjust width */
+  }
+  
+  app-chat-window {
+    flex-grow: 1;
+  }
+  

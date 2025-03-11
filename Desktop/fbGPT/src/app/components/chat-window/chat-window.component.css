@@ -1,0 +1,29 @@
+.message-bubble {
+    display: inline-block;
+    padding: 10px;
+    max-width: 80%;
+    border-radius: 20px;
+  
+    word-wrap: break-word;
+    clear: both; 
+}
+  .user-bubble {
+    background-color: #f0eff1;
+    text-align: left;
+    max-width: 65%; 
+    margin-left: 10px;
+    border-radius: 20px;
+    float: right;   
+  }
+  
+  .ai-bubble {
+    
+    display: inline-block;
+    text-align: left; 
+    margin-right: 10px;
+    border-radius: 20px;
+    
+  }
+  
+
+  

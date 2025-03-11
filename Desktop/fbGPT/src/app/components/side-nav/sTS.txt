@@ -1,0 +1,87 @@
+import { Component } from '@angular/core'; 
+import { SharedVarService } from '../../services/shared-var.service'; 
+import { CommonModule } from '@angular/common';  
+import { take } from 'rxjs';  
+@Component({
+  selector: 'app-side-nav',
+  standalone: true, 
+  templateUrl: './side-nav.component.html',
+  styleUrls: ['./side-nav.component.css'],
+  imports: [CommonModule]
+})
+export class SideNavComponent {
+  
+  chatHistory$: any;  // Declares an observable to store chat history data from the service.
+  showMetrics = false;  // A local boolean variable to control whether the metrics (e.g., speed, latency) are shown.
+  
+  // Metric values to hold the token-related information:
+  firstTokenTime: number | null = null;  // Time for the first token to be received (in ms).
+  tokensPerSecond: number | null = null;  // Tokens per second rate (calculated).
+  firstToLastToken: number | null = null;  // Duration between the first and last token (in ms).
+
+  constructor(private sharedVarService: SharedVarService) {
+    // Initializes the chat history observable from the shared service to get the current chat history.
+    this.chatHistory$ = this.sharedVarService.chatHistory$;
+
+    // Subscribe to the `firstTokenTime` observable from the service and update the component's property when it changes.
+    this.sharedVarService.firstTokenTime$.subscribe((time: number | null) => {
+      this.firstTokenTime = time; // Assigns the latest token time to the component's `firstTokenTime` property.
+    });
+
+    // Subscribe to the `tokensPerSecond` observable from the service and update the component's property when it changes.
+    this.sharedVarService.tokensPerSecond$.subscribe((rate: number | null) => {
+      this.tokensPerSecond = rate; // Updates the `tokensPerSecond` property with the latest value.
+    });
+
+    
+
+    // Subscribe to the `firstToLastToken` observable from the service to track the time difference between first and last token.
+    this.sharedVarService.firstToLastToken$.subscribe((duration: number | null) => {
+      this.firstToLastToken = duration; // Updates the `firstToLastToken` property with the latest value.
+    });
+  }
+
+  /**
+   * Toggles the visibility of token metrics (latency-related info).
+   */
+  toggleMetrics() {
+    this.showMetrics = !this.showMetrics; // Toggles the `showMetrics` boolean value.
+    this.sharedVarService.updateShowMetrics(this.showMetrics); // Updates the service with the new state for metrics visibility.
+  }
+
+  /**
+   * Starts a new chat session by clearing the current state and initializing a fresh chat.
+   */
+  newChat() {
+    this.sharedVarService.updateConversationHistory([]); // Clears the current conversation history in the shared service.
+    this.sharedVarService.updateIsFirstQuestion(true); // Marks that the new chat is the first question of the session.
+    this.sharedVarService.updateShowStartContent(true); // Displays the start content (usually an introductory message or prompt).
+    this.sharedVarService.triggerNewChat(); // Trigger the service method to signal that a new chat has started.
+
+    // After starting a new chat, the previous chat history is marked as inactive (if any).
+    this.sharedVarService.chatHistory$.pipe(take(1)).subscribe((history: any[]) => {
+      const updatedHistory = [...history]; // Creates a shallow copy of the chat history array.
+      if (updatedHistory.length > 0) {
+        updatedHistory[updatedHistory.length - 1].isActive = false; // Marks the last chat as inactive.
+      }
+      this.sharedVarService.updateChatHistory(updatedHistory); // Updates the shared chat history with the new status.
+    });
+  }
+
+  /**
+   * Displays the full conversation history for a selected chat from the sidebar.
+   * @param question - The question part of the selected chat.
+   * @param response - The response part of the selected chat.
+   */
+  displayChatHistory(question: string, response: string) {
+    this.sharedVarService.updateShowStartContent(false); // Hides the start content when a chat history is displayed.
+    
+    this.sharedVarService.chatHistory$.pipe(take(1)).subscribe((history: any[]) => {
+      // Finds the specific chat in the history that matches the selected question and response.
+      const selectedChat = history.find(chat => chat.question === question && chat.response === response);
+      if (selectedChat) {
+        this.sharedVarService.updateConversationHistory(selectedChat.conversation); // Loads the full conversation into the chat window.
+      }
+    });
+  }
+}

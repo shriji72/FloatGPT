@@ -1,0 +1,97 @@
+<div class="container w-[100%] h-screen relative">
+    <!-- Main container for the chat window -->
+    <div class="parent w-full relative px-[5rem]">
+        
+        <div class="chatWindow relative w-full mt-[2rem] h-[78vh] flex flex-col justify-center items-center">
+            
+            <!-- Start content (appears when no conversation is active) -->
+            <div class="startContent pt-10 h-screen justify-center" *ngIf="showStartContent$ | async">
+                <h1 class="text-[3.5rem] leading-[4rem] font-medium w-full pt-[1%]">
+                    <span class="brandHello bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-400">
+                        Hello, It's FloatGPT
+                    </span><br />
+                    <span class="brandQustion text-gray-300">How can I help you today?</span>
+                </h1>
+                <br />
+
+                <!-- Prompt Questions Section -->
+                <div class="promptContainer">
+                    <ul class="grid grid-cols-4 gap-5 pt-20">
+                        <li *ngFor="let question of promptQuestions" (click)="getRes(question)"
+                            class="p-[10px] rounded-[10px] bg-gray-100 cursor-pointer hover:bg-gray-200">
+                            <div class="promptSuggestion flex flex-col items-end justify-between h-[120px]">
+                                <p class="pt-0 leading-[1.2]">{{ question }}</p>
+                                <div class="icon p-[10px]">
+                                    <ng-container [ngSwitch]="question">
+                                        <svg *ngSwitchCase="'Write a thank you reply for a birthday wish?'" class="h-6 w-6 text-stone-900" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z"/>
+                                            <polyline points="7 8 3 12 7 16" />
+                                            <polyline points="17 8 21 12 17 16" />
+                                            <line x1="14" y1="4" x2="10" y2="20" />
+                                        </svg>
+                                        <svg *ngSwitchCase="'How to become a full stack developer?'" class="h-6 w-6 text-stone-900" width="22" height="22" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z"/>
+                                            <rect x="3" y="8" width="18" height="4" rx="1" />
+                                            <line x1="12" y1="8" x2="12" y2="21" />
+                                            <path d="M19 12v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-7" />
+                                            <path d="M7.5 8a2.5 2.5 0 0 1 0 -5a4.8 8 0 0 1 4.5 5a4.8 8 0 0 1 4.5 -5a2.5 2.5 0 0 1 0 5" />
+                                        </svg>
+                                        <svg *ngSwitchCase="'What is the best way to learn something new?'"class="h-6 w-6 text-stone-900"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                                          </svg>
+                                        
+
+                                          <svg  *ngSwitchCase="'What is time dilation in the context of gravity?'" class="h-6 w-6 text-stone-900"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3" />  <path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3" />  <circle cx="15" cy="9" r="1"  /></svg>
+                                          
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Chat Content (appears when conversation is active) -->
+            <div class="chatContent mt-10 w-[90%] h-[100%] overflow-y-auto scrollbar-hide scroll-smooth p-[10px] rounded-[20px] tracking-wide" *ngIf="!(showStartContent$ | async)">
+                <div *ngFor="let chat of conversationHistory$ | async">
+                    <div *ngIf="chat.role === 'user'" class="user-message">
+                        <div class="message-bubble user-bubble bg-purple-100 text-left ml-[10px] rounded-[20px] float-right">
+                            {{ chat.content.replace('User: ', '') }}
+                        </div>
+                    </div>
+                    <div *ngIf="chat.role === 'assistant'" class="ai-message">
+                        <div class="message-bubble ai-bubble text-left mr-[10px] rounded-[20px] float-left">
+                            <strong class="text-indigo-500">AI: </strong>
+                            <span [innerHTML]="sanitizeHtml(chat.content)"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Metrics Display in Bottom Right -->
+        <div *ngIf="showMetrics$ | async" class="metrics-container">
+            <p><strong>Time to First Token:</strong> {{ timeToFirstToken.toFixed(2) }} s</p>
+            <p><strong>Tokens Per Second:</strong> {{ tokensPerSecond.toFixed(2) }}</p>
+            <p><strong>First to Last Token Time:</strong> {{ firstToLastTokenTime.toFixed(2) }} s</p>
+          </div>
+          
+  
+
+        <!-- Input Area -->
+        <div class="w-full flex flex-col items-center justify-center">
+            <div class="inputArea flex bg-gray-100 rounded-full p-10px w-[90%] h-[55px] items-center">
+                <textarea [(ngModel)]="userInput" placeholder="Enter a prompt here" (keyup.enter)="sendMessage()"
+                    class="w-full bg-gray-100 min-h-[24px] h-[50px] scrollbar-hide max-h-[150px] resize-none p-[10px] text-[16px] border-none rounded-[20px] outline-none overflow-y-auto mt-[1px]"></textarea>
+                <div class="iconGroup pr-6 cursor-pointer">
+                    <i (click)="sendMessage()">
+                        <svg class="h-6 w-6 text-stone-900" width="22" height="22" viewBox="0 0 24 24" stroke-width="2.1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z"/>
+                            <path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4" />
+                        </svg>
+                    </i>
+                </div>
+            </div>
+            <p class="text-[#777] text-[14px] pt-3 text-center">FloatGPT may display inaccurate information.</p>
+        </div>
+    </div>
+</div>

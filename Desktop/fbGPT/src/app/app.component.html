@@ -1,0 +1,8 @@
+<ng-container *ngIf="!isLoginPage()">  
+  <div class="app-layout">
+    <app-side-nav></app-side-nav>
+    <app-chat-window></app-chat-window> 
+  </div>
+</ng-container>
+
+<router-outlet></router-outlet> 

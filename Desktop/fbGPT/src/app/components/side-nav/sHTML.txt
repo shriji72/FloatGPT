@@ -1,0 +1,106 @@
+
+
+<!-- Sidebar Navigation -->
+<div class="sideNav w-[215px] h-screen bg-[#f0f4f9] p-4 flex flex-col items-start">
+
+  <!-- Top bar action icon -->
+  <div class="topBarAction cursor-pointer m-4 mb-6 pb-7">
+    <i>
+      <svg class="h-6 w-6 text-stone-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </i>
+  </div>
+
+  <!-- Button for starting a new chat -->
+  <div class="mb-6 pb-5">
+    <button (click)="newChat()" class="h-10 w-36 rounded-full outline-none border-none bg-[#dde3ea] flex items-center px-4">
+      <svg class="h-6 w-6 text-gray-800" stroke="currentColor" stroke-width="1.7" fill="none" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      <span class="ml-3 text-sm">New Chat</span>
+    </button>
+  </div>
+
+  <!-- Chat History Section -->
+  <div class="chatHistory flex-1 w-full">
+    <h5 class="text-sm font-medium text-gray-700 mb-3">Recent</h5>
+    <div class="list-none m-0 w-full">
+      <div class="flex items-center w-full px-2 py-[8px] cursor-pointer text-sm rounded-[60px] hover:bg-[#dde3ea]"
+        *ngFor="let chat of chatHistory$ | async"
+        (click)="displayChatHistory(chat.question, chat.response)">
+
+        <!-- Updated SVG Icon with consistent size -->
+        <svg class="h-4 w-4 text-stone-900 mr-2 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+
+        <!-- Ensure text truncation works properly -->
+        <span class="truncate w-full">{{ chat.question }}</span>
+
+      </div>
+    </div>
+  </div>
+
+    
+  <!-- Sidebar action buttons (Speed, Help, Activity, Settings) -->
+  <div class="w-full absolute bottom-4 flex flex-col items-start gap-0.4">
+      
+    <!-- Metrics Container (Show/Hide on Hover) -->
+<div class="w-full relative " (mouseover)="showMetrics = true" (mouseout)="showMetrics = false">
+  <!-- Token Metrics (Show/Hide with Animation) -->
+  <div *ngIf="showMetrics" 
+    class="metrics-container w-40 absolute bottom-2 w-full px-4 py-2 bg-[#cdd0fc] rounded-md transition-all duration-300 ease-in-out"
+    [ngClass]="{ 'expanded': showMetrics }">
+    <p class="text-xs text-gray-700">Time to First Token: {{ firstTokenTime }} s</p>
+    <p class="text-xs text-gray-700">Tokens per Second: {{ tokensPerSecond }}</p>
+    <p class="text-xs text-gray-700">First to Last Token: {{ firstToLastToken }} s</p>
+  </div>
+
+  <!-- Latency Label (Button style, no click needed) -->
+  <div class="flex items-center px-4 w-44 py-2 text-gray-800 rounded-full transition hover:bg-[#dde3ea]">
+    <svg class="h-6 w-6 text-stone-900 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+    </svg>
+    <span class="text-sm">Latency</span>
+  </div>
+</div>
+
+
+
+
+    <!-- Help Button -->
+    <button class="flex items-center px-4 py-2 w-44 text-gray-800 rounded-full transition hover:bg-[#dde3ea]">
+      <svg class="h-5 w-5 text-stone-900 mr-3" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <line x1="12" y1="17" x2="12" y2="17.01" />
+        <path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" />
+      </svg>
+      <span class="text-sm">Help</span>
+    </button>
+
+    <!-- Activity Button -->
+    <button class="flex items-center px-4 py-2 w-44 text-gray-800 rounded-full transition hover:bg-[#dde3ea]">
+      <svg class="h-5 w-5 text-stone-900 mr-3" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z"/>
+        <path d="M9 4.55a8 8 0 0 1 6 14.9m0 -4.45v5h5" />
+        <path d="M11 19.95a8 8 0 0 1 -5.3 -12.8" stroke-dasharray=".001 4.13" />
+      </svg>
+      <span class="text-sm">Activity</span>
+    </button>
+
+    <!-- Settings Button -->
+    <button class="flex items-center px-4 py-2 w-44 text-gray-800 rounded-full transition hover:bg-[#dde3ea]">
+      <svg class="h-5 w-5 text-stone-900 mr-3" viewBox="0 0 23 23" stroke-width="1.7" stroke="currentColor" fill="none">
+        <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+      <span class="text-sm">Settings</span>
+    </button>
+
+  </div>
+</div>
+

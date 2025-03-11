@@ -1,0 +1,85 @@
+
+
+
+
+
+/* Chat history section in the sidebar */
+.sideNav .chatHistory {
+    @apply max-h-[250px] overflow-y-scroll;
+}
+
+/* Hide scrollbar to maintain a clean UI */
+.sideNav .chatHistory::-webkit-scrollbar {
+    display: none;
+}
+
+/* Styling for chat history heading */
+.sideNav .chatHistory h5 {
+    @apply text-[0.87rem] font-medium leading-[1.25rem] my-4 mx-1;
+
+    
+}
+
+/* Removes default bullet points from list */
+.ul {
+    @apply list-none;
+}
+
+/* Custom transition for the metrics container */
+.metrics-container {
+    position: relative;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform-origin: top;
+    width: 173px;
+ 
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  }
+  
+  /* Expanded state when showMetrics is true */
+  .metrics-container.expanded {
+    max-height: 200px; /* Adjust based on your content */
+    opacity: 1;
+
+    transform: scaleY(1);
+  }
+  
+  /* Collapsed state for the metrics container */
+  .metrics-container:not(.expanded) {
+    transform: scaleY(0);
+  }
+  
+
+
+
+
+
+/* Hover effect for action buttons */
+.sideNav .actionList button:hover {
+    @apply bg-[#dde3ea];
+}
+
+/* Button styling for the sidebar (New Chat button) */
+.sideNav .sideNavBtn button {
+    @apply h-10 w-36 rounded-full outline-none border-none hover:bg-[#bfc6d2] flex items-center justify-evenly transition duration-300 cursor-pointer;
+}
+
+/* Action buttons (Help, Activity, Settings) at the bottom of the sidebar */
+/* .sideNav .actionList {
+    @apply absolute bottom-4 flex flex-col h-[16%] gap-[1.9px];
+} */
+
+/* Styling for action buttons */
+/* .sideNav .actionList button {
+    @apply m-[1px] p-[5px] text-left rounded-full border-none outline-none w-[100px] cursor-pointer bg-transparent transition duration-300 flex justify-center;
+} */
+*{
+/*  
+    background: #716969; */
+}
+
+.dropdown {
+    @apply absolute left-0 mt-2 w-40 bg-white shadow-lg rounded-lg p-2;
+}
+  
